@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  livestock-db:
+    image: postgres:16-alpine
+    container_name: livestock_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=livestock-farming
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  livestock-backend:
+    image: thanhtantg2003/livestock-be:1.0
+    container_name: livestock_backend
+    ports:
+      - "8281:8281"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://livestock-db:5432/livestock-farming
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - livestock-db
+
+  livestock-frontend:
+    image: thanhtantg2003/livestock-fe:1.0
+    container_name: livestock_frontend
+    ports:
+      - "80:80" # Chạy FE ở port 80 cho đẹp
+    depends_on:
+      - livestock-backend
+
+volumes:
+  postgres_data:
